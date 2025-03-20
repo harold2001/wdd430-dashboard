@@ -106,7 +106,7 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
-    await sql.begin(async sql => {
+    await sql.begin(async () => {
       await Promise.all([
         seedUsers(),
         seedCustomers(),
@@ -116,8 +116,14 @@ export async function GET() {
     });
 
     return Response.json({ message: 'Database seeded successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error seeding database:', error);
-    return Response.json({ error: error?.message }, { status: 500 });
+
+    let message = 'An unknown error occurred.';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    return Response.json({ error: message }, { status: 500 });
   }
 }
